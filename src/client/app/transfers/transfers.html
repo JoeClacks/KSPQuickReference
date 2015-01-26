@@ -1,0 +1,211 @@
+﻿<section class="mainbar">
+    <section class="matter">
+        <div class="container">
+            <div class="row">
+                <div class="widget wblue">
+                    <div data-cc-widget-header title="{{vm.title}}"></div>
+                    <div class="widget-content user">
+                        <!--<pre>{{vm.avengers.data | json}}</pre>-->
+
+                        <!--<input data-ng-model="vm.filter.destBody" placeholder="Find transfers by destination name" type="search"/>-->
+                        <div style="float: left">
+                            <select ng-model="vm.filter.destination" ng-options="body for body in vm.destBodies">
+                                <option value="">Select destination</option>
+                            </select>
+                        </div>
+                        <div style="float: left; padding-left: 2em">
+                            <div><input type="checkbox" ng-model="vm.filter.insertBurn" ng-change="vm.insertTypeSwitch('burn')"/>Insertion Burn</div>
+                            <div><input type="checkbox" ng-model="vm.filter.noInsertBurn" ng-change="vm.insertTypeSwitch('aero')" />Aerocapture or fly-by</div>
+                        </div>
+                        <!--<input data-ng-model="vm.destinationFilter" placeholder="Destination" type="search"/>-->
+                        <table class="table table-condensed table-striped">
+                            <thead>
+                            <tr>
+                                <th>Destination</th>
+                                <th ng-click="vm.transferSort('departure')">Departure Date</th>
+                                <th ng-click="vm.transferSort('arrival')">Arrival Date</th>
+                                <th ng-click="vm.transferSort('totalDeltaV')">Total Δv</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!--<tr data-ng-repeat="t in vm.transfers | filter:vm.filter track by t.id">-->
+                            <tr data-ng-repeat-start="t in vm.transfers | filter:vm.transferFilter"
+                                    ng-click="vm.showDetails(t.id)">
+                                <td>
+                                    <img
+                                        ng-src="{{vm.imagePath}}{{t.destination}}.png"
+                                        class="body-thumb img-rounded"/>
+                                    <span class="avenger-name">{{t.destination}}</span>
+                                </td>
+                                <td>
+                                    <abbr title="UT: {{t.depart}}s">
+                                        {{t.depart | kDate}}
+                                    </abbr>
+                                </td>
+                                <td>
+                                    <abbr title="UT: {{t.arrive}}s">
+                                        {{t.arrive | kDate}}
+                                    </abbr>
+                                </td>
+                                <td>{{t.totalDeltaV | number:0}} m/s</td>
+                            </tr>
+                            <tr data-ng-repeat-end data-ng-show="t.isDetailsVisible">
+                                <td colspan="4">
+                                    <h4>Selected transfer details</h4>
+                                    <div class="div-transferDetails">
+
+                                        <dl>
+                                            <dt>
+                                                Time of flight
+                                            </dt>
+                                            <dd>
+                                                <abbr title="UT: {{t.arrive - t.depart}}s">
+                                                    {{t.arrive - t.depart | kTime}}
+                                                </abbr>
+                                            </dd>
+                                            <dt>
+                                                Phase angle
+                                            </dt>
+                                            <dd>
+                                                {{t.phaseAngle | number:2}}°
+                                            </dd>
+                                            <dt>
+                                                Transfer type
+                                            </dt>
+                                            <dd>
+                                                {{t.planeChange ? "Mid-course plane change" : "Ballistic"}}
+                                            </dd>
+                                            <dt>
+                                                Insertion type
+                                            </dt>
+                                            <dd>
+                                                {{t.insertBurn ? "Insertion Burn" : "Aerocapture or fly-by"}}
+                                            </dd>
+                                        </dl>
+                                        <h6>Ejection burn details</h6>
+                                        <dl>
+                                            <dt>Ejection angle</dt>
+                                            <dd>
+                                                {{t.ejectBurn.angle | number:2}}° to {{t.ejectBurn.ref}}
+                                            </dd>
+                                            <dt>
+                                                Ejection inclination
+                                            </dt>
+                                            <dd>
+                                                {{t.ejectBurn.inclination | number:2}}°
+                                            </dd>
+                                            <dt>
+                                                Ejection total Δv
+                                            </dt>
+                                            <dd>
+                                                {{t.ejectBurn.deltaV | number:0}} m/s
+                                            </dd>
+                                            <!--<dt>
+                                                Prograde Δv
+                                            </dt>
+                                            <dd>
+                                                {{t.ejectBurn.progradeDeltaV | number}} m/s
+                                            </dd>
+                                            <dt>
+                                                Normal Δv
+                                            </dt>
+                                            <dd>
+                                                {{t.ejectBurn.normalDeltaV | number}} m/s
+                                            </dd>
+                                            <dt>
+                                                Heading
+                                            </dt>
+                                            <dd>
+                                                {{t.ejectBurn.heading}}°
+                                            </dd>-->
+                                        </dl>
+                                    </div>
+                                    <div class="div-transferDetails">
+                                        <dl>
+                                            <h6>Transfer details</h6>
+
+                                            <dt>
+                                                Transfer periapsis
+                                            </dt>
+                                            <dd>
+                                                {{t.transferPeriapsis | metricPrefix }}m
+                                            </dd>
+                                            <dt>
+                                                Transfer apoapsis
+                                            </dt>
+                                            <dd>
+                                                {{t.transferApoapsis | metricPrefix }}m
+                                            </dd>
+                                            <dt>
+                                                Transfer inclination
+                                            </dt>
+                                            <dd>
+                                                {{t.transferInclination | number:2}}°
+                                            </dd>
+                                            <dt>
+                                                Transfer angle
+                                            </dt>
+                                            <dd>
+                                                {{t.transferAngle | number:2}}°
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                    <div ng-show="t.planeChange" class="div-transferDetails">
+                                        <h6>Plane change burn details</h6>
+                                        <dl>
+                                            <dt>
+                                                Time
+                                            </dt>
+                                            <dd>
+                                                {{t.planeChange.time | kDate}}
+                                            </dd>
+                                            <dt>
+                                                Angle to intercept
+                                            </dt>
+                                            <dd>
+                                                {{t.planeChange.angleToIntercept}}°
+                                            </dd>
+                                            <dt>
+                                                Plane change angle
+                                            </dt>
+                                            <dd>
+                                                {{t.planeChange.angle}}°
+                                            </dd>
+                                            <dt>
+                                                Δv
+                                            </dt>
+                                            <dd>
+                                                {{t.planeChange.deltaV | number}} m/s
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                    <div ng-show="t.insertBurn" class="div-transferDetails">
+                                        <h6>Insertion burn details</h6>
+                                        <dl>
+                                            <dt>
+                                                Inclination
+                                            </dt>
+                                            <dd>
+                                                {{t.insertBurn.inclination | number:2}}°
+                                            </dd>
+                                            <dt>
+                                                Δv
+                                            </dt>
+                                            <dd>
+                                                {{t.insertBurn.deltaV | number}} m/s
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="widget-foot">
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</section>
